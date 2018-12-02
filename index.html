@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Legendary: Game of Heroes deck suggester (beta)</title>
+    <meta name="description" content="Legendary: Game of Heroes deck suggester">
+    <meta name="author" content="Giero">
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
+    <link rel="stylesheet"
+          href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css">
+    <link rel="stylesheet"
+          href="//cdnjs.cloudflare.com/ajax/libs/awesome-bootstrap-checkbox/0.3.7/awesome-bootstrap-checkbox.min.css"/>
+    <link rel="stylesheet" href="css/vendor.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header text-center">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">
+                Legendary: Game of Heroes<br>
+                <small>deck suggester (beta)</small>
+            </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul id="page-nav" class="nav navbar-nav pull-right">
+                <li role="presentation" class="dropdown-right active">
+                    <a href="#team">Your team</a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" onclick="$(this).prev().tab('show')">
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu team-actions-menu">
+                        <li><a href="#" id="team-save" data-action="save">Save team</a></li>
+                        <li><a href="#" id="team-load" data-action="load">Load team</a></li>
+                        <li><a href="#" id="team-delete" data-action="delete">Delete saved teams</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#" id="team-import" data-action="import">Import team</a></li>
+                        <li><a href="#" id="team-export" data-action="export">Export team</a></li>
+                    </ul>
+                </li>
+                <li role="presentation"><a href="#decks">Suggested decks</a></li>
+                <li role="presentation"><a href="#heroes">List of heroes</a></li>
+                <li role="presentation"><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id="app" class="container" role="main">
+    <div class="row">
+        <div class="tab-content" id="page-content">
+            <div class="tab-pane fade active in" role="tabpanel" id="team">
+                <team-adding-form></team-adding-form>
+                <team-heroes-list></team-heroes-list>
+            </div>
+            <div class="tab-pane fade" role="tabpanel" id="decks">
+                <computed-decks></computed-decks>
+            </div>
+            <div class="tab-pane fade" role="tabpanel" id="heroes">
+                <div class="panel panel-danger">
+                    <div class="panel-heading"><span class="text-danger">
+                        This list is based on <strong><a href="//goo.gl/e2ql9O"
+                                                         target="_blank">this spreadsheet</a></strong> - feel free to update it, if something is missing.
+                    </span></div>
+                    <div class="panel panel-body">
+                        <div class="row">
+                            <div class="col-md-10">If you added some new data to the spreadsheet, you may want to update
+                                heroes pool on the page - for you and for any other user :)
+                                <br/>To do so just click update button.
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <button class="btn btn-primary" @click="updateHeroesPool">Update now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <all-heroes-list></all-heroes-list>
+            </div>
+            <div class="tab-pane fade" role="tabpanel" id="contact">
+                <fieldset>
+                    <legend>Soon ...</legend>
+                    <p>... but project is available on <a href="//github.com/giero/LGoH-deck-suggester" target="_blank">Github</a>,
+                        so you can create an issue (with bugs or propositions) or message me there.</p>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Some description</legend>
+                    <b>What's the purpose?</b>
+                    <p>To analyse all of your cards which you think would be good for fight and based on many many
+                        conditions (affinity strength/weakness, leader bonus, event bonus...) combine best decks you can
+                        get from them.</p>
+                    <br/>
+                    <b>What it does?</b>
+                    <p>First you have to add all your best cards on "Your team" page (all stats are important - you have
+                        to do it manually, because it's not possible to "import" it from the game ... yet) and then on
+                        "Suggested decks" page you can calculate the best combinations.</p>
+
+                    <p>All calculations are made in your browser and - <span
+                            class="text-danger"><strong>WARNING</strong></span> - for many cards ("many" means more than
+                        70) calculations are getting longer. Why? Because page is checking every single cards
+                        configurations and then it's choosing the best of all. For 75 cards it's almost 90.000.000
+                        combinations... for single affinity... so it's 5 times more for all...</p>
+                    So my recommendations:
+                    <ol>
+                        <li>limit your team to 80-90 of your best cards,</li>
+                        <li>use it on your pc - not on your mobile,</li>
+                        <li>use Chrome - it seems calculations are much faster on this browser.</li>
+                    </ol>
+
+                    <p>But if you are interested to find the deck only for Slayer event against Earth affinity, you can
+                        set it in calculations options - will be faster.</p>
+                    <p>Decks are generated purely based on cards stats (attack/recovery/hp), not on "usefulness" -
+                        probably it wont find decks for Gear Bosses, because it requires more complicated mechanics
+                        (like mass gem generation, damage immunity, etc) ... but it's good for beginners or for events
+                        if you don't have gems for buying event tiers. I will try to figure it out how to promote cards
+                        which generate gems or are more useful than the others.</p>
+
+                    <p>It's still in beta - I have lots of ideas to add, but not so much time to update it really often.
+                        Feel free to comment and ask questions ... or maybe you have some ideas I could implement :)</p>
+                    <br/>
+                    <p>P.S. If somebody would like to test it before entering cards, you can import them from <a
+                            href="//pastebin.com/U8LqL1Yq" target="_blank">this sample</a> ("import" is under the arrow
+                        near "your team" menu). There are 50 from my top cards - should be enough to test.</p>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template id="heroes-list">
+    <section>
+        <div>
+            <ul :id="listId" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a :href="'#' + listId + '-all'">All ({{ counter.all }})</a></li>
+                <li role="presentation"><a :href="'#' + listId + '-fire'">Fire ({{ counter.Fire }})</a></li>
+                <li role="presentation"><a :href="'#' + listId + '-water'">Water ({{ counter.Water }})</a></li>
+                <li role="presentation"><a :href="'#' + listId + '-earth'">Earth ({{ counter.Earth }})</a></li>
+                <li role="presentation"><a :href="'#' + listId + '-light'">Light ({{ counter.Light }})</a></li>
+                <li role="presentation"><a :href="'#' + listId + '-dark'">Dark ({{ counter.Dark }})</a></li>
+            </ul>
+        </div>
+
+        <div class="tab-content" :id="listId + '-content'">
+            <div class="tab-pane fade active in" role="tabpanel" :id="listId + '-all'">
+                <heroes-table></heroes-table>
+            </div>
+            <div class="tab-pane fade" role="tabpanel" :id="listId + '-fire'">
+                <heroes-table affinity="Fire"></heroes-table>
+            </div>
+            <div class="tab-pane fade" role="tabpanel" :id="listId + '-water'">
+                <heroes-table affinity="Water"></heroes-table>
+            </div>
+            <div class="tab-pane fade" role="tabpanel" :id="listId + '-earth'">
+                <heroes-table affinity="Earth"></heroes-table>
+            </div>
+            <div class="tab-pane fade" role="tabpanel" :id="listId + '-light'">
+                <heroes-table affinity="Light"></heroes-table>
+            </div>
+            <div class="tab-pane fade" role="tabpanel" :id="listId + '-dark'">
+                <heroes-table affinity="Dark"></heroes-table>
+            </div>
+        </div>
+    </section>
+</template>
+
+<template id="heroes-table">
+    <section>
+        <div class="row">
+            <div class="form-group col-sm-4">
+                <label :for="listId + '-' + affinity + 'name-filter'">Hero name</label>
+                <input v-model="searchKey" class="form-control" :id="listId + '-' + affinity + 'name-filter'"/>
+            </div>
+            <div class="form-group col-sm-2 pull-right">
+                <label :for="listId + '-' + affinity + 'sort'">Sort by</label>
+                <select :id="listId + '-' + affinity + 'sort'" class="form-control selectpicker" v-model="sort">
+                    <option value="" selected="selected">default</option>
+                    <option value="name">name</option>
+                    <option value="power">power</option>
+                    <option value="defender-skill">defender skill</option>
+                    <option value="counter-skill">counter skill</option>
+                </select>
+            </div>
+        </div>
+
+        <table class="table table-condensed heroes-table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Attack</th>
+                <th>Recovery</th>
+                <th>Health</th>
+                <th>Power</th>
+                <th>Event Skills</th>
+                <th>Defender Skill</th>
+                <th>Counter Skill</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="hero in filteredHeroes" :data-hero-id="hero.id">
+                <td>
+                    {{ hero.name }}<br class="visible-sm-block visible-xs-block"/>
+                    <span v-if="hero.awakening > 0" class="badge" title="Awakening level" style="cursor: default">{{ hero.awakening }}</span>
+                    <span v-html="hero.rarityStarsHTML"></span>
+                </td>
+                <td><span :class="{'hero-editable-stat editable-click': editable}" data-stat="attack"
+                          :title="editable ? 'edit stat' : ''">{{ hero.attack }}</span></td>
+                <td><span :class="{'hero-editable-stat editable-click': editable}" data-stat="recovery"
+                          :title="editable ? 'edit stat' : ''">{{ hero.recovery }}</span></td>
+                <td><span :class="{'hero-editable-stat editable-click': editable}" data-stat="health"
+                          :title="editable ? 'edit stat' : ''">{{ hero.health }}</span></td>
+                <td><span data-stat="power">{{ hero.power }}</span></td>
+                <td>
+                    <span class="label label-primary event-skill"
+                          v-for="eventSkill in ['Slayer', 'Bounty Hunter', 'Commander']"
+                          v-if="hero.eventSkills.hasOwnProperty(eventSkill)">
+                        {{ eventSkill }} {{ hero.eventSkills[eventSkill] }}x
+                        <br class="visible-sm-block visible-xs-block"/>
+                    </span>
+                    <span class="label label-primary event-skill"
+                          v-if="hero.eventSkills.hasOwnProperty('Warden')">
+                        Warden
+                        <br class="visible-sm-block visible-xs-block"/>
+                    </span>
+                </td>
+                <td>
+                    {{ hero.defenderSkill }}
+                    <span v-show="skills.defenderSkills.hasOwnProperty(hero.defenderSkill)"
+                          class="glyphicon glyphicon-info-sign text-info pull-right"
+                          data-toggle="popover"
+                          data-trigger="hover"
+                          data-placement="top"
+                          data-container="body"
+                          :data-content="skills.defenderSkills[hero.defenderSkill]"></span>
+                </td>
+                <td>{{ hero.counterSkill }}</td>
+                <td v-if="editable">
+                    <span class="glyphicon glyphicon-remove text-danger" style="cursor: pointer;"
+                          @click="removeHeroFromList"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</template>
+
+<template id="team-adding-form">
+    <div class="jumbotron">
+        <form id="team-adding" method="post" class="form-horizontal" @submit="addHeroToTeam">
+            <fieldset>
+                <legend>Add hero to team</legend>
+                <div class='form-group'>
+                    <div class='col-sm-10'>
+                        <select class="form-control selectpicker" id="team-hero-id" name="coreId" required
+                                title="Hero name" data-live-search="true" data-size="10">
+                            <optgroup v-for="(heroes, affinity) in affinityHeroes" :label="affinity">
+                                <option v-for="hero in heroes"
+                                        :value="hero.coreId"
+                                        :data-content="hero.name + ' ' + hero.rarityStarsHTML">
+                                    {{ hero.name }}
+                                </option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class='col-sm-2'>
+                        <select class="form-control selectpicker" id="team-hero-awakening" name="awakening"
+                                title="Awakening level">
+                            <option value=""></option>
+                            <option v-for="(value, awakening) in {1:1,2:2,3:3,4:4,5:5}" :value="awakening">
+                                {{ value }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control" id="team-hero-attack" name="attack" required
+                               placeholder="Attack"/>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control" id="team-hero-recovery" name="recovery" required
+                               placeholder="Recovery"/>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control" id="team-hero-health" name="health" required
+                               placeholder="Health"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-4"
+                         v-for="(id, skill) in {'Slayer': 'slayer', 'Bounty Hunter': 'bounty-hunter', 'Commander': 'commander'}">
+                        <select class="form-control selectpicker" :id="'team-hero-' + id"
+                                :name="'eventSkills['+skill+']'" :title="skill">
+                            <option value=""></option>
+                            <option v-for="i in [2,3,4,5,7,10,13]" :value="i">{{ i }}x</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="add-to-team" class="btn btn-primary">Add to team</button>
+                <button id="clear-team" @click="clearTeam" class="btn btn-danger pull-right">Clear your team</button>
+            </fieldset>
+        </form>
+    </div>
+</template>
+
+<template id="computed-decks">
+    <section class="container">
+        <div class="row" v-show="teamHeroes.heroes.length < 5">
+            <div class="col-sm-12">
+                <span>Add some more heroes to your team</span>
+            </div>
+        </div>
+
+        <div class="row" v-show="teamHeroes.heroes.length >= 5">
+            <div class="col-sm-5 text-center" style="margin-bottom: 20px">
+                <button id="calculate-decks" class="btn btn-primary" @click="calculateDecks">
+                    <span>Calculate decks</span>
+                    <br/>
+                    <small>possible {{ possibilities.format(0, 3) }} decks<br/>in {{ (possibilities*5).format(0, 3) }}
+                        configurations (for every affinity))
+                    </small>
+                </button>
+                <button id="stop-calculations" style="display: none" class="btn btn-danger" @click="stopCalculations">
+                    Stop calculations
+                </button>
+                <div id="limitation-warning" v-if="teamHeroes.heroes.length > 80" class="panel panel-danger">
+                    <div class="panel-heading"><span class="text-danger">WARNING</span></div>
+                    <div class="panel panel-body">You have a lot cards in your team - your calculations may take a very,
+                        very long time. Try to limit your cards to 80 and/or set some calculations options ... or
+                        prepare some time to spare on waiting.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-7">
+                <div class="panel panel-default row">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Calculation options</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="calculation-event-type">Enable event:</label>
+                                <select id="calculation-event-type" class="form-control selectpicker" v-model="event"
+                                        data-width="89%">
+                                    <option value="">None</option>
+                                    <option value="Slayer">Slayer</option>
+                                    <option value="Commander">Commander</option>
+                                </select>
+                            </div>
+                            <div class="checkbox checkbox-primary form-group">
+                                <input type="checkbox" v-model="maxStats" class="styled" id="calculation-max-stats"
+                                       @click="if (maxStats === false) maxRarity = maxAwakening = false;">
+                                <label for="calculation-max-stats"><strong>Calculate at max stats</strong></label>
+                                <span class="glyphicon glyphicon-info-sign text-info"
+                                      data-toggle="popover"
+                                      data-trigger="hover"
+                                      data-placement="top"
+                                      data-container="body"
+                                      data-content="Calculate with all cards temporarily raised to max level (on the same rarity)."></span>
+                            </div>
+                            <div class="checkbox checkbox-primary form-group">
+                                <input type="checkbox" v-model="maxRarity" class="styled" id="calculation-max-rarity"
+                                       :disabled="!maxStats">
+                                <label for="calculation-max-rarity"><strong>Calculate at max rarity</strong></label>
+                                <span class="glyphicon glyphicon-info-sign text-info"
+                                      data-toggle="popover"
+                                      data-trigger="hover"
+                                      data-placement="top"
+                                      data-container="body"
+                                      data-content="Calculate with all cards temporarily raised to max rarity."></span>
+                            </div>
+                            <div class="checkbox checkbox-primary form-group">
+                                <input type="checkbox" v-model="maxAwakening" class="styled"
+                                       id="calculation-max-awakening" :disabled="!maxStats">
+                                <label for="calculation-max-awakening"><strong>Calculate at max
+                                    awakening</strong></label>
+                                <span class="glyphicon glyphicon-info-sign text-info"
+                                      data-toggle="popover"
+                                      data-trigger="hover"
+                                      data-placement="top"
+                                      data-container="body"
+                                      data-content="Calculate with all cards temporarily raised to max awakening level."></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="calculation-counter-skill">Team counter skills:</label>
+                                <select id="calculation-counter-skill" class="form-control selectpicker"
+                                        v-model="counterSkills"
+                                        multiple data-max-options="5" data-selected-text-format="count > 2"
+                                        data-width="89%">
+                                    <option v-for="option in counterSkillsOptions">
+                                        {{ option }}
+                                    </option>
+                                </select>
+                                <span class="glyphicon glyphicon-info-sign text-info"
+                                      data-toggle="popover"
+                                      data-trigger="hover"
+                                      data-placement="top"
+                                      data-container="body"
+                                      data-content="If you don't see some skill that means none of your team card has it."></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="calculation-affinity">Limit opponent affinities:</label>
+                                <select id="calculation-affinity" class="form-control selectpicker"
+                                        v-model="affinitiesLimit"
+                                        multiple data-max-options="5" data-selected-text-format="count > 2"
+                                        data-width="89%">
+                                    <option v-for="option in affinityOptions">
+                                        {{ option }}
+                                    </option>
+                                </select>
+                                <span class="glyphicon glyphicon-info-sign text-info"
+                                      data-toggle="popover"
+                                      data-trigger="hover"
+                                      data-placement="top"
+                                      data-container="body"
+                                      data-content="Limiting this will speed up your calculations."></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div v-if="progress > -1" class="progress">
+                    <div class="progress-bar progress-bar-striped" role="progressbar"
+                         :style="'width: ' + progress + '%'">
+                        {{ progress }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row panel panel-default" v-if="calculationStarted !== null && calculationStopped !== null">
+            <div class="panel-body">
+                Calculations ended after {{ Math.round((calculationStopped - calculationStarted) / 1000) }} seconds.
+            </div>
+        </div>
+        <div class="calculated-heroes-panel row panel panel-default" v-for="(decksByStat, affinity) in bestDecks">
+            <div class="panel-heading">Against: {{ affinity }}</div>
+
+            <div class="panel panel-body">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" :class="stat == 'attack' ? 'active' : ''"
+                        v-for="(deck, stat) in decksByStat">
+                        <a :href="'#computed-' + affinity.replace(/ /g, '-') + '-' + stat" role="tab" data-toggle="tab">
+                            {{ stat.replace(/_/g, ' ') }}
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade row" :class="stat == 'attack' ? 'in active' : ''"
+                         :id="'computed-' + affinity.replace(/ /g, '-') + '-' + stat.replace(/ /g, '-')"
+                         v-for="(deck, stat) in decksByStat">
+
+                        <div class="heroes-list col-sm-10">
+                            <ul class="list-group">
+                                <li class="list-group-item" v-for="(hero, key) in deck.heroes">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <span :class="key === 0 ? 'text-danger': ''">
+                                                {{ hero.name }}
+                                            </span>
+                                            <span v-if="hero.awakening > 0" class="badge" title="Awakening level"
+                                                  style="cursor: default">{{ hero.awakening }}</span>
+                                            <span v-html="(new Hero(hero)).rarityStarsHTML"></span>
+                                            <span v-if="key === 0"
+                                                  class="glyphicon glyphicon-info-sign text-info"
+                                                  style="display: inline"
+                                                  data-toggle="popover"
+                                                  data-trigger="hover"
+                                                  data-placement="top"
+                                                  data-container="body"
+                                                  :title="hero.leaderAbility.name"
+                                                  :data-content="hero.leaderAbility.description"></span>
+                                            <br/>
+                                            <small>
+                                                {{ hero.affinity }}&nbsp;{{ hero.type }}&nbsp;{{ hero.species }}
+                                                &nbsp;::&nbsp;
+                                                {{ hero.attack }}&nbsp;/&nbsp;{{ hero.recovery }}&nbsp;/&nbsp;{{
+                                                hero.health }}
+                                            </small>
+                                            <span v-if="hero.eventSkills.hasOwnProperty('Commander')"
+                                                  class="label label-primary event-skill pull-right">
+                                                {{ hero.affinity }} Commander {{ hero.eventSkills.Commander }}x
+                                            </span>
+                                            <span v-if="hero.eventSkills.hasOwnProperty('Slayer')"
+                                                  class="label label-primary event-skill pull-right">
+                                                Slayer {{ hero.eventSkills.Slayer }}x
+                                            </span>
+                                            <span v-if="hero.eventSkills.hasOwnProperty('Warden')"
+                                                  class="label label-primary event-skill pull-right">
+                                                Warden
+                                            </span>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="stats-list col-sm-2">
+                            <ul class="list-group">
+                                <li class="list-group-item container-fluid">
+                                    <strong>score</strong>
+                                    <span class="glyphicon glyphicon-info-sign text-info"
+                                          data-toggle="popover"
+                                          data-trigger="hover"
+                                          data-placement="top"
+                                          data-container="body"
+                                          :data-content="'Sum of all heroes \'' + stat.replace(/_/g, ' ') + '\' stats after all bonuses are applied'"></span>
+                                    <span class="badge">{{ deck.value.format(0, 3) }}</span>
+                                </li>
+                                <li class="list-group-item container-fluid" v-for="(value, stat) in deck.stats">
+                                    {{ stat }}
+                                    <span class="badge">{{ value.format(0, 3) }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</template>
+
+<script src="//www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+<!--<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-rating-input/0.4.0/bootstrap-rating-input.js"></script>-->
+<!-- for now bootbox has invalid template for awesome-bootstrap-checkbox, had to be temporarily overwritten by me -->
+<!--<script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>-->
+<script src="js/vendor/bootbox.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+
+<script src="js/database.js"></script>
+<script src="js/helpers.js"></script>
+<script src="js/skills.js"></script>
+<script src="js/hero.js"></script>
+<script src="js/team.js"></script>
+<script src="js/team_operations.js"></script>
+<script src="js/deck.js"></script>
+<script src="js/deck_generator.js"></script>
+<script src="js/deck_worker.js"></script>
+<script src="js/vendor/md5.js"></script>
+<script src="js/hero_loader.js"></script>
+<script src="js/main.js"></script>
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-99018598-1', 'auto');
+    ga('send', {
+        hitType: 'pageview',
+        title: 'Your team'
+    });
+
+</script>
+
+</body>
+</html>
