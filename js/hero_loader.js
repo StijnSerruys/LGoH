@@ -1,13 +1,13 @@
 function HeroLoader() {
-    this.url = 'https://docs.google.com/spreadsheets/d/1fAMeBL5d2XfhqOo1QTJjknlfXvoFd91oLsbGiZ5VKnE/pub?gid=160864184&single=true&output=tsv';
+    this.url = 'https://docs.google.com/spreadsheets/d/1DK3Gxzy9AQL28kWtfDkHWG_5rqHpDriOKT4L0LHK5ks/pub?gid=476538225&single=true&output=tsv';
 }
+//https://docs.google.com/spreadsheets/d/1fAMeBL5d2XfhqOo1QTJjknlfXvoFd91oLsbGiZ5VKnE/pub?gid=160864184
 
 HeroLoader.prototype.load = function (callback) {
     var self = this;
 
     $.get(this.url, function (data) {
         var lines = data.split("\n");
-        // var headers = lines[0].split("\t");
         var result = [];
 
         for (var i = 1; i < lines.length; i++) {
@@ -30,7 +30,8 @@ HeroLoader.prototype.load = function (callback) {
 };
 
 HeroLoader.prototype.validateRow = function (heroData) {
-    if (!(/^\*{1,6}$/.test(heroData[2]))) {
+    console.log(heroData);
+    if (!(/[0-6](?:★)/.test(heroData[1]))) {
         throw new Error('Invalid value or number of stars for ' + heroData[1]);
     }
 
@@ -38,36 +39,36 @@ HeroLoader.prototype.validateRow = function (heroData) {
         return 'Invalid ' + stat + ' (' + statValue + ' (?))'
     };
 
-    if (['fire', 'earth', 'water', 'light', 'dark'].indexOf(heroData[0]) < 0) {
-        throw new Error(errorMessage('affinity', heroData[0]));
+    if (['Fire', 'Earth', 'Water', 'Light', 'Dark'].indexOf(heroData[3]) < 0) {
+        throw new Error(errorMessage('affinity', heroData[3]));
     }
 
-    if (heroData[3] === 'Attackers') {
+    if (heroData[7] === 'Attackers') {
         console.log(heroData);
     }
-    if (['Attacker', 'Balanced', 'Defender', 'Guardian', 'Healer', 'Mage', 'Warrior'].indexOf(heroData[3]) < 0) {
-        throw new Error(errorMessage('class', heroData[3]));
+    if (['Attacker', 'Balanced', 'Defender', 'Guardian', 'Healer', 'Mage', 'Warrior'].indexOf(heroData[7]) < 0) {
+        throw new Error(errorMessage('class', heroData[7]));
     }
 
     var races = ['Celestial', 'Corrupt', 'Creature', 'Demigod', 'Dragon', 'Dren', 'Dwarf', 'Fable', 'Giant', 'God', 'Human', 'Legend', 'Spirit', 'Honored', 'Ancient', 'Technological', 'Goblin', 'Mystic'];
-    if (heroData[4].indexOf(' ') > 0) {
-        var validRace = heroData[4].split(' ').every(function (race) {
+    if (heroData[8].indexOf(' ') > 0) {
+        var validRace = heroData[8].split(' ').every(function (race) {
             return races.indexOf(race) >= 0;
         });
 
         if (!validRace) {
-            throw new Error(errorMessage('race', heroData[4]));
+            throw new Error(errorMessage('race', heroData[8]));
         }
-    } else if (races.indexOf(heroData[4]) < 0) {
-        throw new Error(errorMessage('race', heroData[4]));
+    } else if (races.indexOf(heroData[8]) < 0) {
+        throw new Error(errorMessage('race', heroData[8]));
     }
 
-    if (!skills.defenderSkills.hasOwnProperty(heroData[9])) {
-        throw new Error(errorMessage('defender skill', heroData[9]));
+    if (!skills.defenderSkills.hasOwnProperty(heroData[10])) {
+        throw new Error(errorMessage('defender skill', heroData[10]));
     }
 
-    if (!skills.counterSkill.hasOwnProperty(heroData[10])) {
-        throw new Error(errorMessage('counter skill', heroData[10]));
+    if (!skills.counterSkill.hasOwnProperty(heroData[11])) {
+        throw new Error(errorMessage('counter skill', heroData[11]));
     }
 };
 
