@@ -4,11 +4,10 @@ function getHeroesSpreadsheetData()
 {
     $spreadsheetURL = "https://docs.google.com/spreadsheets/d/1DK3Gxzy9AQL28kWtfDkHWG_5rqHpDriOKT4L0LHK5ks/edit#gid=476538225&single=true&output=tsv";
 
-
     $data = file_get_contents($spreadsheetURL);
     $data = mb_convert_encoding($data, 'UTF-8', 'ASCII');
     $data = str_replace("\r", "", $data);
-    file_put_contents('heroes_all.tsv', $data);
+    file_put_contents('heroes_all_test.tsv', $data);
 }
 
 /**
@@ -235,5 +234,6 @@ function collectSkillsData($filename, $delimiter = ',')
 }
 
 getHeroesSpreadsheetData();
-file_put_contents('heroes_all.json', json_encode(collectHeroesData('heroes_all.tsv', "\t"), JSON_PRETTY_PRINT));
+/*file_put_contents('heroes_all.json', json_encode(collectHeroesData('heroes_all.tsv', "\t"), JSON_PRETTY_PRINT));
 file_put_contents('skills_all.json', json_encode(collectSkillsData('heroes_skills.tsv', "\t"), JSON_PRETTY_PRINT));
+*/
